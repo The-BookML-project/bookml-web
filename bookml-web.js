@@ -25,6 +25,8 @@ var BookML_DocumentOutput = function(){
 		childrenContainer.setAttribute("class", "blockContent level-" + block.level);		
 
 		if (block.titleElement) {
+			block.titleElement.classList.add("heading");
+			block.titleElement.classList.add("heading-" + block.level);
 			blockContainer.appendChild(block.titleElement);	
 		}
 		
@@ -43,6 +45,8 @@ var BookML_DocumentOutput = function(){
 
 var BookML_TableOfContentOutput = function(){
 	this.container;
+	this.titleCounter = 0;
+	this.maxLevel = 3;
 
 	this.output = function(document, tree){
 		this.container = document.createElement("ul");
@@ -53,9 +57,19 @@ var BookML_TableOfContentOutput = function(){
 		document.body.appendChild(this.container);
 	}
 
+	
+
+	this.generateId = function(block){
+		return this.titleCounter ++;
+	}
+
 	this.processBlock = function(block, parentElement) {
 
 		if (! block.isBlock){
+			return;
+		}
+
+		if (block.level > this.maxLevel) {
 			return;
 		}
 
@@ -73,6 +87,10 @@ var BookML_TableOfContentOutput = function(){
 			var title = document.createElement("a");
 			title.innerText = block.titleElement.innerText; //@todo clean label	
 			
+			if (! block.titleElement.id) {
+				block.titleElement.id = this.generateId(block);
+			}
+
 			title.setAttribute("href", "#" + block.titleElement.id);
 			entry.appendChild(title);
 		}
@@ -242,5 +260,8 @@ var BookML = function(){
 
 }
 
-var bookml = new BookML();
-bookml.run();
+document.addEventListener("DOMContentLoaded", function(){
+	var bookml = new BookML();
+	bookml.run();	
+})
+
